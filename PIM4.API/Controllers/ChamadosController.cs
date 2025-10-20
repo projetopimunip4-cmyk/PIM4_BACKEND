@@ -18,29 +18,53 @@ namespace PIM4.API.Controllers
             _chamadoService = chamadoService;
         }
 
-        // --- ENDPOINTS DE ACOMPANHAMENTO (GET) ---
+        // --- ENDPOINTS DE ACOMPANHAMENTO (GET E PUT) ---
 
-        // 1. MÉTODO MAIS ESPECÍFICO: GET por ID
+        // 1. GET por ID (Mais específico)
         /// <summary>
         /// Método GET para buscar chamado por ID (Rota: /api/Chamados/{id}).
-        /// O atributo "{id}" torna esta rota a mais específica, devendo vir primeiro.
         /// </summary>
         [HttpGet("{id}")] 
         public async Task<ActionResult<Chamado>> BuscarChamadoPorId(int id)
         {
-            var chamado = await _chamadoService.BuscarPorId(id); 
-
-            if (chamado == null)
-            {
-                return NotFound(); // 404 se não encontrar o chamado
-            }
-            return Ok(chamado); // 200 OK com os detalhes
+            var chamado = await _chamadoService.BuscarPorId(id);
+            if (chamado == null) return NotFound(); 
+            return Ok(chamado);
         }
 
-        // 2. MÉTODO MAIS GENÉRICO: GET All
+        // 2. PUT para Atualização de Status
+        /// <summary>
+        /// Método PUT para atualizar o status e detalhes de um chamado. (REQUISITO: P4)
+        /// Rota: PUT /api/Chamados/{id}
+        /// </summary>
+        [HttpPut("{id}")] 
+        public async Task<IActionResult> AtualizarChamado(int id, [FromBody] Chamado chamado)
+        {
+            if (id != chamado.IdChamado)
+            {
+                return BadRequest(new { message = "O ID da URL não corresponde ao ID do chamado fornecido." });
+            }
+
+            try
+            {
+                var sucesso = await _chamadoService.AtualizarStatus(chamado); 
+
+                if (!sucesso)
+                {
+                    return NotFound(); // 404 se o chamado não existir
+                }
+
+                return NoContent(); // 204 No Content para sucesso
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Erro ao atualizar chamado."); 
+            }
+        }
+        
+        // 3. GET All (Mais genérico)
         /// <summary>
         /// Método GET para listar todos os chamados (Rota: /api/Chamados).
-        /// Atende ao requisito de Acompanhamento (Lista de Chamados).
         /// </summary>
         [HttpGet]
         public async Task<ActionResult<List<Chamado>>> ListarChamados()
@@ -50,9 +74,9 @@ namespace PIM4.API.Controllers
         }
 
         // --- ENDPOINT DE CRIAÇÃO (POST) ---
-
+        
         /// <summary>
-        /// Método POST para criar um novo chamado (Regra de Registro/Priorização).
+        /// Método POST para criar um novo chamado.
         /// </summary>
         [HttpPost]
         public async Task<IActionResult> CriarChamado([FromBody] Chamado chamado)
@@ -60,18 +84,15 @@ namespace PIM4.API.Controllers
             try
             {
                 var novoChamado = await _chamadoService.Criar(chamado);
-
-                // Retorna 201 Created e o caminho para o novo recurso
                 return CreatedAtAction(nameof(BuscarChamadoPorId), new { id = novoChamado.IdChamado }, novoChamado);
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(new { message = ex.Message }); // 400 Bad Request
+                return BadRequest(new { message = ex.Message }); 
             }
             catch (Exception)
             {
-                // Este é o retorno genérico para erros de banco de dados ou serviço
-                return StatusCode(500, "Erro ao registrar chamado. Tente novamente."); 
+                return StatusCode(500, "Erro ao registrar chamado. Tente novamente.");
             }
         }
     }

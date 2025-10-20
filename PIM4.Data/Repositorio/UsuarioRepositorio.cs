@@ -7,9 +7,11 @@ using System.Threading.Tasks;
 
 namespace PIM4.Data.Repositorios
 {
+    
     // A classe principal que implementa as operações de acesso a dados.
     public class UsuarioRepositorio
     {
+        
         private readonly AppDbContext _contexto;
 
         // Construtor: Recebe o contexto do banco de dados via Injeção de Dependência.
@@ -26,6 +28,15 @@ namespace PIM4.Data.Repositorios
         public async Task<List<Usuario>> ListarTodos()
         {
             return await _contexto.Usuarios.AsNoTracking().ToListAsync();
+        }
+        
+
+        public async Task<List<Usuario>> BuscarPorTipo(string tipo)
+        {
+            return await _contexto.Usuarios
+                                     .AsNoTracking()
+                                     .Where(u => u.TipoUsuario == tipo)
+                                     .ToListAsync();
         }
 
         /// <summary>
@@ -58,6 +69,7 @@ namespace PIM4.Data.Repositorios
             await _contexto.SaveChangesAsync();
             return usuario;
         }
+        
 
         /// <summary>
         /// Atualiza os dados de um usuário existente.

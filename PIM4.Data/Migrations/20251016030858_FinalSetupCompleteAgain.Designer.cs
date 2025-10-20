@@ -2,7 +2,6 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PIM4.Data.Context;
@@ -12,18 +11,16 @@ using PIM4.Data.Context;
 namespace PIM4.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251010045418_InitialFinalSetup")]
-    partial class InitialFinalSetup
+    [Migration("20251016030858_FinalSetupCompleteAgain")]
+    partial class FinalSetupCompleteAgain
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.9")
+                .HasAnnotation("ProductVersion", "8.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
-
-            MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
             modelBuilder.Entity("PIM4.Models.Entidades.Anexo", b =>
                 {
@@ -31,8 +28,6 @@ namespace PIM4.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasColumnName("id_anexo");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("IdAnexo"));
 
                     b.Property<string>("CaminhoArquivo")
                         .HasColumnType("VARCHAR(255)")
@@ -64,8 +59,6 @@ namespace PIM4.Data.Migrations
                         .HasColumnType("int")
                         .HasColumnName("id_chamado");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("IdChamado"));
-
                     b.Property<string>("Categoria")
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)")
@@ -77,8 +70,12 @@ namespace PIM4.Data.Migrations
 
                     b.Property<string>("Descricao")
                         .IsRequired()
-                        .HasColumnType("longtext")
+                        .HasColumnType("TEXT")
                         .HasColumnName("descricao");
+
+                    b.Property<int>("IdUsuario")
+                        .HasColumnType("int")
+                        .HasColumnName("id_usuario");
 
                     b.Property<string>("Prioridade")
                         .IsRequired()
@@ -98,15 +95,37 @@ namespace PIM4.Data.Migrations
                         .HasColumnType("varchar(100)")
                         .HasColumnName("titulo");
 
-                    b.Property<int>("UsuarioId")
-                        .HasColumnType("int")
-                        .HasColumnName("id_usuario");
-
                     b.HasKey("IdChamado");
 
-                    b.HasIndex("UsuarioId");
+                    b.HasIndex("IdUsuario");
 
                     b.ToTable("Chamado", (string)null);
+                });
+
+            modelBuilder.Entity("PIM4.Models.Entidades.Conhecimento", b =>
+                {
+                    b.Property<int>("IdConhecimento")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<string>("Categoria")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ConteudoResumido")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("LinkCompleto")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("TituloArtigo")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("IdConhecimento");
+
+                    b.ToTable("Conhecimento", (string)null);
                 });
 
             modelBuilder.Entity("PIM4.Models.Entidades.IASugestao", b =>
@@ -115,8 +134,6 @@ namespace PIM4.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasColumnName("id_sugestao");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("IdSugestao"));
 
                     b.Property<string>("CategoriaSugerida")
                         .IsRequired()
@@ -149,8 +166,6 @@ namespace PIM4.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
                     b.Property<string>("Acao")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -173,8 +188,6 @@ namespace PIM4.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasColumnName("id_resposta");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("IdResposta"));
 
                     b.Property<DateTime>("DataResposta")
                         .HasColumnType("datetime(6)")
@@ -208,8 +221,6 @@ namespace PIM4.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasColumnName("id_usuario");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("IdUsuario"));
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -260,7 +271,7 @@ namespace PIM4.Data.Migrations
                 {
                     b.HasOne("PIM4.Models.Entidades.Usuario", "Usuario")
                         .WithMany()
-                        .HasForeignKey("UsuarioId")
+                        .HasForeignKey("IdUsuario")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

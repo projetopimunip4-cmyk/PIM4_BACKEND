@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using PIM4.Data.Context;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
-using PIM4.Data.Repositorios; // Necessário para a Injeção de Dependência
-using PIM4.Services; // Necessário para a Injeção de Dependência
-using PIM4.API.Controllers; // Necessário para a Injeção de Dependência
-using System; // Necessário para a classe Version
+using PIM4.Data.Repositorios;
+using PIM4.Services;
+using PIM4.API.Controllers;
+using System; 
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,11 +21,13 @@ builder.Services.AddScoped<UsuarioRepositorio>();
 builder.Services.AddScoped<UsuarioService>();
 builder.Services.AddScoped<ChamadoRepositorio>(); 
 builder.Services.AddScoped<ChamadoService>();
+// NOVO: Registro do Repositório de Conhecimento para a funcionalidade de IA
+builder.Services.AddScoped<ConhecimentoRepositorio>(); 
 
 // 3. Configurações da API
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(); // Este método agora funciona, pois o pacote Swashbuckle está instalado.
+builder.Services.AddSwaggerGen(); 
 
 var app = builder.Build();
 

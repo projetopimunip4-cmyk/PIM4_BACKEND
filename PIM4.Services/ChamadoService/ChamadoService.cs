@@ -1,8 +1,10 @@
 using PIM4.Data.Repositorios;
 using PIM4.Models.Entidades;
+using PIM4.Models.DTOs; // Inclui os DTOs de Dashboard
 using System;
-using System.Collections.Generic; // Adicionado para List<Chamado>
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace PIM4.Services
 {
@@ -15,21 +17,43 @@ namespace PIM4.Services
             _chamadoRepositorio = chamadoRepositorio;
         }
 
-        // --- MÉTODOS DE CONSULTA (LEITURA/ACOMPANHAMENTO) ---
-
+        // -------------------------------------------------------------
+        // --- MÉTODOS DE CONSULTA E RELATÓRIO (GET / Dashboard) ---
+        // -------------------------------------------------------------
+        
+        // CORREÇÃO CS1061 (ChamadosController)
         public async Task<List<Chamado>> ListarTodos()
         {
             return await _chamadoRepositorio.ListarTodos();
         }
         
-        // CORREÇÃO: Método de Serviço que atua como ponte para o Repositório
+        // CORREÇÃO CS1061 (ChamadosController)
         public async Task<Chamado?> BuscarPorId(int id)
         {
             return await _chamadoRepositorio.BuscarPorId(id);
         }
 
-        // --- LÓGICA DE NEGÓCIO: CRIAÇÃO ---
+        // CORREÇÃO CS1061 (DashboardController)
+        public async Task<EstatisticasDTO> ObterEstatisticasTotais()
+        {
+            return await _chamadoRepositorio.ObterEstatisticasTotais();
+        }
+        public async Task<List<Chamado>> ListarChamadosPaginados(int page, int pageSize)
+        {
+            return await _chamadoRepositorio.ListarChamadosPaginados(page, pageSize);
+        }
 
+        // CORREÇÃO CS1061 (DashboardController)
+        public async Task<List<ChamadosPorStatusDTO>> ObterChamadosPorStatus()
+        {
+            return await _chamadoRepositorio.ObterChamadosPorStatus();
+        }
+
+        // -------------------------------------------------------------
+        // --- MÉTODOS DE TRANSAÇÃO (POST / PUT) ---
+        // -------------------------------------------------------------
+        
+        // CORREÇÃO CS1061 (ChamadosController - Criar)
         public async Task<Chamado> Criar(Chamado chamado)
         {
             // Validação (Regra: Registro)
@@ -38,7 +62,7 @@ namespace PIM4.Services
                 throw new ArgumentException("Título e Descrição do chamado são obrigatórios.");
             }
 
-            // 1. Simulação da IA para Priorização e Encaminhamento (Regras: Priorização, Encaminhamento)
+            // Lógica de Priorização (IA)
             if (chamado.Descricao.ToLower().Contains("servidor") || chamado.Descricao.ToLower().Contains("rede"))
             {
                 chamado.Categoria = "Infraestrutura/Rede";
@@ -55,12 +79,17 @@ namespace PIM4.Services
                 chamado.Prioridade = "baixa";
             }
 
-            // 2. Definição do Status e Data (Regras: Registro, Acompanhamento)
+            // Definição do Status e Data
             chamado.DataAbertura = DateTime.Now;
             chamado.Status = "aberto";
 
-            // 3. Persistência
             return await _chamadoRepositorio.Adicionar(chamado);
+        }
+        
+        // CORREÇÃO CS1061 (ChamadosController - Atualizar)
+        public async Task<bool> AtualizarStatus(Chamado chamado)
+        {
+            return await _chamadoRepositorio.Atualizar(chamado);
         }
     }
 }

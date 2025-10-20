@@ -7,6 +7,7 @@ namespace PIM4.Data.Context
     {
         // Construtor que recebe as opções de conexão
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+        
 
         // Mapeamento das Entidades para as Tabelas do Banco de Dados (DbSets)
         public DbSet<Usuario> Usuarios { get; set; }
@@ -15,6 +16,9 @@ namespace PIM4.Data.Context
         public DbSet<IASugestao> IASugestoes { get; set; }
         public DbSet<Anexo> Anexos { get; set; }
         public DbSet<LogAcesso> LogAcessos { get; set; }
+        
+        // NOVO: Adicionando o DbSet para a Base de Conhecimento
+        public DbSet<Conhecimento> Conhecimentos { get; set; } 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -25,12 +29,15 @@ namespace PIM4.Data.Context
             modelBuilder.Entity<IASugestao>().ToTable("IA_Sugestao");
             modelBuilder.Entity<Anexo>().ToTable("Anexo");
             modelBuilder.Entity<LogAcesso>().ToTable("Log_Acesso");
+            
+            // NOVO: Mapeamento da tabela Conhecimento
+            modelBuilder.Entity<Conhecimento>().ToTable("Conhecimento");
 
             // Configurações de chaves estrangeiras, se necessário (exemplo)
             // modelBuilder.Entity<Chamado>()
-            //    .HasOne(c => c.Usuario)
-            //    .WithMany(u => u.Chamados)
-            //    .HasForeignKey(c => c.IdUsuario); 
+            //    .HasOne(c => c.Usuario)
+            //    .WithMany(u => u.Chamados)
+            //    .HasForeignKey(c => c.IdUsuario); 
         }
     }
 }

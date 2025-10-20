@@ -4,42 +4,30 @@ using PIM4.Models.Entidades;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
-using PIM4.Data.Repositorios;
 
 namespace PIM4.API.Controllers
 {
     [ApiController]
-    // ROTA EXPLÍCITA: Força o uso de /api/Usuarios, resolvendo o 404.
     [Route("api/Usuarios")] 
     public class UsuariosController : ControllerBase
     {
-        private readonly UsuarioService _usuarioService;
-        private readonly UsuarioRepositorio _usuarioRepositorio;
+        private readonly UsuarioService _usuarioService; // APENAS O SERVICE
 
-        // O construtor injeta as dependências necessárias
-        public UsuariosController(UsuarioService usuarioService, UsuarioRepositorio usuarioRepositorio)
+        // O construtor injeta APENAS o Service (Boa Prática de Arquitetura Limpa)
+        public UsuariosController(UsuarioService usuarioService)
         {
             _usuarioService = usuarioService;
-            _usuarioRepositorio = usuarioRepositorio;
         }
 
-        // Endpoint POST para registrar um novo usuário (Rota: POST /api/Usuarios)
+        // Endpoint POST para registrar um novo usuário
         [HttpPost]
         public async Task<IActionResult> RegistrarUsuario([FromBody] Usuario usuario)
         {
             try
             {
-                // Validação de senha simples: o serviço deve ser chamado com a senha em texto puro,
-                // que, no seu modelo, está no campo SenhaHash (usado como workaround).
-                if (string.IsNullOrWhiteSpace(usuario.SenhaHash))
-                {
-                    return BadRequest(new { message = "O campo de senha é obrigatório e deve conter a senha em texto puro." });
-                }
-
                 // Chama o serviço para criar o usuário e hashear a senha.
                 var novoUsuario = await _usuarioService.CriarUsuario(usuario, usuario.SenhaHash); 
                 
-                // Retorna 201 Created com a URL para o novo recurso
                 return CreatedAtAction(nameof(BuscarUsuarioPorId), new { id = novoUsuario.IdUsuario }, novoUsuario);
             }
             catch (ArgumentException ex)
@@ -48,25 +36,31 @@ namespace PIM4.API.Controllers
             }
             catch (Exception)
             {
-                return StatusCode(500, "Ocorreu um erro interno. Verifique o servidor e o banco de dados.");
+                return StatusCode(500, "Ocorreu um erro interno.");
             }
         }
         
-        // Método GET necessário para o CreatedAtAction funcionar (Rota: GET /api/Usuarios/{id})
+        // --- MÉTODOS DE CONSULTA (CHAMANDO O SERVICE) ---
+        
+        // Método GET por ID - Rota: /api/Usuarios/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<Usuario>> BuscarUsuarioPorId(int id)
         {
-            var usuario = await _usuarioRepositorio.BuscarPorId(id); 
+            // CORREÇÃO: Chama o Service, que deve ter este método (CS1061 resolvido)
+            var usuario = await _usuarioService.BuscarUsuarioPorId(id); 
             if (usuario == null) return NotFound();
             return Ok(usuario);
         }
         
-        // Exemplo de listagem (opcional)
+        // Método GET para listagem - Rota: /api/Usuarios
         [HttpGet]
         public async Task<ActionResult<List<Usuario>>> ListarTodos()
         {
-            var usuarios = await _usuarioRepositorio.ListarTodos();
+            // CORREÇÃO: Chama o Service, que deve ter este método (CS1061 resolvido)
+            var usuarios = await _usuarioService.ListarTodos();
             return Ok(usuarios);
         }
+        
+        // ... (Os métodos PUT e DELETE devem ser ajustados para chamar o _usuarioService)
     }
 }

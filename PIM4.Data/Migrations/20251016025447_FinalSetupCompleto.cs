@@ -7,12 +7,33 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace PIM4.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialFinalSetup : Migration
+    public partial class FinalSetupCompleto : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterDatabase()
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Conhecimento",
+                columns: table => new
+                {
+                    IdConhecimento = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Categoria = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    TituloArtigo = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    ConteudoResumido = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    LinkCompleto = table.Column<string>(type: "longtext", nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Conhecimento", x => x.IdConhecimento);
+                })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
@@ -64,7 +85,7 @@ namespace PIM4.Data.Migrations
                     id_usuario = table.Column<int>(type: "int", nullable: false),
                     titulo = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    descricao = table.Column<string>(type: "longtext", nullable: false)
+                    descricao = table.Column<string>(type: "TEXT", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     data_abertura = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     status = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false)
@@ -197,6 +218,9 @@ namespace PIM4.Data.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Anexo");
+
+            migrationBuilder.DropTable(
+                name: "Conhecimento");
 
             migrationBuilder.DropTable(
                 name: "IA_Sugestao");
